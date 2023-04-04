@@ -1,5 +1,6 @@
 package me.dio.academia.academiadigital.service.impl;
 
+import me.dio.academia.academiadigital.service.impl.exceptions.AlunoNotFoundException;
 import me.dio.academia.academiadigital.entities.Aluno;
 import me.dio.academia.academiadigital.entities.AvaliacaoFisica;
 import me.dio.academia.academiadigital.entities.forms.AvaliacaoFisicaForm;
@@ -10,6 +11,7 @@ import me.dio.academia.academiadigital.service.IAvaliacaoFisicaService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
@@ -22,16 +24,27 @@ public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
         this.alunoRepository = alunoRepository;
     }
 
+    /*
+     * Using Optional.get() without first checking if the optional is present with isPresent() is generally considered a bad practice
+     * because it can result in a NoSuchElementException being thrown at runtime if the optional is empty.
+     * It is always better to first check if the optional has a value using isPresent() before calling get().
+     */
     @Override
     public AvaliacaoFisica create(AvaliacaoFisicaForm form) {
-        AvaliacaoFisica avaliacaoFisica = new AvaliacaoFisica();
-        Aluno aluno = alunoRepository.findById(form.getAlunoId()).get();
+        Optional<Aluno> optionalAluno = alunoRepository.findById(form.getAlunoId());
+        if (optionalAluno.isPresent()) {
+            AvaliacaoFisica avaliacaoFisica = new AvaliacaoFisica();
+            Aluno aluno = optionalAluno.get();
 
-        avaliacaoFisica.setAluno(aluno);
-        avaliacaoFisica.setPeso(form.getPeso());
-        avaliacaoFisica.setAltura(form.getAltura());
+            avaliacaoFisica.setAluno(aluno);
+            avaliacaoFisica.setPeso(form.getPeso());
+            avaliacaoFisica.setAltura(form.getAltura());
 
-        return avaliacaoFisicaRepository.save(avaliacaoFisica);
+            return avaliacaoFisicaRepository.save(avaliacaoFisica);
+        } else {
+            // handle the case where the Aluno is not found
+            throw new AlunoNotFoundException();
+        }
     }
 
     @Override

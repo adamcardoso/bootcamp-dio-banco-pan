@@ -10,16 +10,18 @@ import me.dio.academia.academiadigital.service.IAlunoService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AlunoServiceImpl implements IAlunoService {
 
 
-    private final AlunoRepository repository;
+    private final AlunoRepository alunoRepository;
 
     public AlunoServiceImpl(AlunoRepository repository) {
-        this.repository = repository;
+        this.alunoRepository = repository;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class AlunoServiceImpl implements IAlunoService {
         aluno.setBairro(form.getBairro());
         aluno.setDataDeNascimento(form.getDataDeNascimento());
 
-        return repository.save(aluno);
+        return alunoRepository.save(aluno);
     }
 
     @Override
@@ -42,10 +44,10 @@ public class AlunoServiceImpl implements IAlunoService {
     public List<Aluno> getAll(String dataDeNascimento) {
 
         if(dataDeNascimento == null) {
-            return repository.findAll();
+            return alunoRepository.findAll();
         } else {
             LocalDate localDate = LocalDate.parse(dataDeNascimento, JavaTimeUtils.LOCAL_DATE_FORMATTER);
-            return repository.findByDataDeNascimento(localDate);
+            return alunoRepository.findByDataDeNascimento(localDate);
         }
 
     }
@@ -59,12 +61,20 @@ public class AlunoServiceImpl implements IAlunoService {
     public void delete(Long id) {
     }
 
+    /*
+    * Using Optional.get() without first checking if the optional is present with isPresent() is generally considered a bad practice
+    * because it can result in a NoSuchElementException being thrown at runtime if the optional is empty.
+    * It is always better to first check if the optional has a value using isPresent() before calling get().
+    */
     @Override
     public List<AvaliacaoFisica> getAllAvaliacaoFisicaId(Long id) {
-
-        Aluno aluno = repository.findById(id).get();
-
-        return aluno.getAvaliacoesFisicas();
+        Optional<Aluno> optionalAluno = alunoRepository.findById(id);
+        if (optionalAluno.isPresent()) {
+            Aluno aluno = optionalAluno.get();
+            return aluno.getAvaliacoesFisicas();
+        } else {
+            // handle the case where the Aluno is not found
+            return Collections.emptyList();
+        }
     }
-
 }

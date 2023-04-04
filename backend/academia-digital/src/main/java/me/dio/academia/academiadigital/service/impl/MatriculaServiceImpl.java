@@ -6,9 +6,12 @@ import me.dio.academia.academiadigital.entities.forms.MatriculaForm;
 import me.dio.academia.academiadigital.repositories.AlunoRepository;
 import me.dio.academia.academiadigital.repositories.MatriculaRepository;
 import me.dio.academia.academiadigital.service.IMatriculaService;
+import me.dio.academia.academiadigital.service.impl.exceptions.AlunoNotFoundException;
+import me.dio.academia.academiadigital.service.impl.exceptions.MatriculaNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MatriculaServiceImpl implements IMatriculaService {
@@ -23,18 +26,31 @@ public class MatriculaServiceImpl implements IMatriculaService {
 
     @Override
     public Matricula create(MatriculaForm form) {
-        Matricula matricula = new Matricula();
-        Aluno aluno = alunoRepository.findById(form.getAlunoId()).get();
+        Optional<Aluno> optionalAluno = alunoRepository.findById(form.getAlunoId());
+        if (optionalAluno.isPresent()) {
+            Matricula matricula = new Matricula();
+            Aluno aluno = optionalAluno.get();
 
-        matricula.setAluno(aluno);
+            matricula.setAluno(aluno);
 
-        return matriculaRepository.save(matricula);
+            return matriculaRepository.save(matricula);
+        } else {
+            // handle the case where the Aluno is not found
+            throw new AlunoNotFoundException();
+        }
     }
 
     @Override
     public Matricula get(Long id) {
-        return matriculaRepository.findById(id).get();
+        Optional<Matricula> optionalMatricula = matriculaRepository.findById(id);
+        if (optionalMatricula.isPresent()) {
+            return optionalMatricula.get();
+        } else {
+            // handle the case where the Matricula is not found
+            throw new MatriculaNotFoundException();
+        }
     }
+
 
     @Override
     public List<Matricula> getAll(String bairro) {
