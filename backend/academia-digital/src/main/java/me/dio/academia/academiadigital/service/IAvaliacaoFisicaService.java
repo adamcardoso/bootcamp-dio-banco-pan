@@ -19,7 +19,7 @@ public interface IAvaliacaoFisicaService {
      * @param id - id da Avaliação Física que será exibida.
      * @return - Avaliação Física de acordo com o Id fornecido.
      */
-    AvaliacaoFisica get(Long id);
+    AvaliacaoFisica findById(Long id);
 
     /**
      * Retorna todas as Avaliações Física que estão no banco de dados.

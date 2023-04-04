@@ -23,6 +23,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/alunos")
@@ -61,6 +62,7 @@ public class AlunoController {
         }
     }
 
+    // adiciona vários alunos
     @Operation(description = "API para inserir dados de um aluno no banco")
     @ResponseBody
     @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Retorno OK com a transação criada."),
@@ -69,12 +71,13 @@ public class AlunoController {
             @ApiResponse(responseCode = "404", description = "Recurso não encontrado")
     })
     @PostMapping
-    public ResponseEntity<AlunoDTO> insert(@Valid @RequestBody AlunoDTO alunoDTO) {
-        AlunoForm alunoForm = alunoDTO.toForm(); // convert AlunoDTO to AlunoForm
-        AlunoDTO insertedAlunoDTO = alunoService.insert(alunoForm);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(insertedAlunoDTO.getId()).toUri();
-        return ResponseEntity.created(uri).body(insertedAlunoDTO);
+    public ResponseEntity<List<AlunoDTO>> insert(@Valid @RequestBody List<AlunoDTO> alunosDTO) {
+        List<AlunoForm> alunosForm = alunosDTO.stream().map(AlunoDTO::toForm).collect(Collectors.toList());
+        List<AlunoDTO> insertedAlunosDTO = alunoService.insert(alunosForm);
+        List<Long> ids = insertedAlunosDTO.stream().map(AlunoDTO::getId).collect(Collectors.toList());
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{ids}")
+                .buildAndExpand(ids).toUri();
+        return ResponseEntity.created(uri).body(insertedAlunosDTO);
     }
 
     @PutMapping(value = "/{id}")

@@ -16,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -110,15 +107,19 @@ public class AlunoServiceImpl implements IAlunoService {
     }
 
     @Override
-    public AlunoDTO insert(AlunoForm form) {
-        Aluno entity = new Aluno();
+    public List<AlunoDTO> insert(List<AlunoForm> forms) {
+        List<Aluno> entities = new ArrayList<>();
 
-        // cria o novo registro no banco de dados
-        copyDtoToEntity(form, entity);
-        entity = alunoRepository.save(entity);
+        for (AlunoForm form : forms) {
+            Aluno entity = new Aluno();
+            copyDtoToEntity(form, entity);
+            entities.add(entity);
+        }
 
-        return new AlunoDTO(entity);
+        List<Aluno> insertedEntities = alunoRepository.saveAll(entities);
+        return insertedEntities.stream().map(AlunoDTO::new).collect(Collectors.toList());
     }
+
 
     private void copyFormToEntity(AlunoUpdateForm formUpdate, Aluno entity) {
         entity.setNome(formUpdate.getNome());
@@ -129,7 +130,7 @@ public class AlunoServiceImpl implements IAlunoService {
     private void copyDtoToEntity(AlunoForm form, Aluno entity) {
         entity.setNome(form.getNome());
         entity.setCpf(form.getCpf());
-        entity.setBairro(form.getBairro());
         entity.setDataDeNascimento(form.getDataDeNascimento());
+        entity.setBairro(form.getBairro());
     }
 }

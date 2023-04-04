@@ -3,6 +3,7 @@ package me.dio.academia.academiadigital.api;
 import me.dio.academia.academiadigital.entities.Matricula;
 import me.dio.academia.academiadigital.entities.forms.MatriculaForm;
 import me.dio.academia.academiadigital.service.impl.MatriculaServiceImpl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,4 +29,15 @@ public class MatriculaController {
         return matriculaService.getAll(bairro);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Matricula> findById(@PathVariable Long id) {
+        Matricula matricula = matriculaService.findById(id);
+        return ResponseEntity.ok(matricula);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        matriculaService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

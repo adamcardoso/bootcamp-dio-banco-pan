@@ -11,6 +11,7 @@ import me.dio.academia.academiadigital.service.impl.exceptions.MatriculaNotFound
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -41,7 +42,7 @@ public class MatriculaServiceImpl implements IMatriculaService {
     }
 
     @Override
-    public Matricula get(Long id) {
+    public Matricula findById(Long id) {
         Optional<Matricula> optionalMatricula = matriculaRepository.findById(id);
         if (optionalMatricula.isPresent()) {
             return optionalMatricula.get();
@@ -55,7 +56,7 @@ public class MatriculaServiceImpl implements IMatriculaService {
     @Override
     public List<Matricula> getAll(String bairro) {
 
-        if(bairro == null){
+        if(Objects.isNull(bairro)){
             return matriculaRepository.findAll();
         }else{
             return matriculaRepository.findAlunosMatriculadosBairro(bairro);
@@ -64,5 +65,8 @@ public class MatriculaServiceImpl implements IMatriculaService {
     }
 
     @Override
-    public void delete(Long id) {}
+    public void delete(Long id) {
+        Matricula matricula = findById(id);
+        matriculaRepository.delete(matricula);
+    }
 }

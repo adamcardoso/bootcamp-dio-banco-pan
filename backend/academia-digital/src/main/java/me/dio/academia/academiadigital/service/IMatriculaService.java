@@ -18,7 +18,7 @@ public interface IMatriculaService {
      * @param id - id da Matrícula que será exibida.
      * @return - Matrícula de acordo com o Id fornecido.
      */
-    Matricula get(Long id);
+    Matricula findById(Long id);
 
     /**
      * Retorna todas as Matrículas que estão no banco de dados.

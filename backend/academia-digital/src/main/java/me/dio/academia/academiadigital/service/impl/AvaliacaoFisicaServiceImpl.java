@@ -10,6 +10,7 @@ import me.dio.academia.academiadigital.repositories.AvaliacaoFisicaRepository;
 import me.dio.academia.academiadigital.service.IAvaliacaoFisicaService;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,23 +49,34 @@ public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
     }
 
     @Override
-    public AvaliacaoFisica get(Long id) {
-        return null;
-    }
-
-    @Override
     public List<AvaliacaoFisica> getAll() {
 
         return avaliacaoFisicaRepository.findAll();
     }
 
     @Override
+    public AvaliacaoFisica findById(Long id) {
+        Optional<AvaliacaoFisica> avaliacaoFisicaOptional = avaliacaoFisicaRepository.findById(id);
+        if (avaliacaoFisicaOptional.isPresent()) {
+            return avaliacaoFisicaOptional.get();
+        } else {
+            throw new EntityNotFoundException("Avaliação Física não encontrada com o id: " + id);
+        }
+    }
+
+    @Override
     public AvaliacaoFisica update(Long id, AvaliacaoFisicaUpdateForm formUpdate) {
-        return null;
+        AvaliacaoFisica avaliacaoFisica = this.findById(id);
+
+        avaliacaoFisica.setPeso(formUpdate.getPeso());
+        avaliacaoFisica.setAltura(formUpdate.getAltura());
+
+        return avaliacaoFisicaRepository.save(avaliacaoFisica);
     }
 
     @Override
     public void delete(Long id) {
-
+        AvaliacaoFisica avaliacaoFisica = this.findById(id);
+        avaliacaoFisicaRepository.delete(avaliacaoFisica);
     }
 }
