@@ -33,8 +33,8 @@ public class AlunoController {
 
     private final AlunoServiceImpl alunoService;
 
-    public AlunoController(AlunoServiceImpl service) {
-        this.alunoService = service;
+    public AlunoController(AlunoServiceImpl alunoService) {
+        this.alunoService = alunoService;
     }
 
     @GetMapping

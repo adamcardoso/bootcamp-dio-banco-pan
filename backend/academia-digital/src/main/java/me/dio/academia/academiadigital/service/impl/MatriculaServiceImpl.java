@@ -27,19 +27,18 @@ public class MatriculaServiceImpl implements IMatriculaService {
 
     @Override
     public Matricula create(MatriculaForm form) {
-        Optional<Aluno> optionalAluno = alunoRepository.findById(form.getAlunoId());
-        if (optionalAluno.isPresent()) {
-            Matricula matricula = new Matricula();
-            Aluno aluno = optionalAluno.get();
-
-            matricula.setAluno(aluno);
-
-            return matriculaRepository.save(matricula);
-        } else {
-            // handle the case where the Aluno is not found
+        Long alunoId = form.getAlunoId();
+        Optional<Aluno> optionalAluno = alunoRepository.findById(alunoId);
+        if (optionalAluno.isEmpty()) {
             throw new AlunoNotFoundException();
         }
+
+        Matricula matricula = new Matricula();
+        Aluno aluno = optionalAluno.get();
+        matricula.setAluno(aluno);
+        return matriculaRepository.save(matricula);
     }
+
 
     @Override
     public Matricula findById(Long id) {
@@ -47,7 +46,6 @@ public class MatriculaServiceImpl implements IMatriculaService {
         if (optionalMatricula.isPresent()) {
             return optionalMatricula.get();
         } else {
-            // handle the case where the Matricula is not found
             throw new MatriculaNotFoundException();
         }
     }
@@ -55,13 +53,11 @@ public class MatriculaServiceImpl implements IMatriculaService {
 
     @Override
     public List<Matricula> getAll(String bairro) {
-
-        if(Objects.isNull(bairro)){
-            return matriculaRepository.findAll();
-        }else{
-            return matriculaRepository.findAlunosMatriculadosBairro(bairro);
+        if (Objects.isNull(bairro) || bairro.isEmpty()) {
+            throw new IllegalArgumentException("O parâmetro 'bairro' não pode ser nulo ou vazio");
         }
 
+        return matriculaRepository.findAlunosMatriculadosBairro(bairro);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package me.dio.academia.academiadigital.service.impl;
 
-import me.dio.academia.academiadigital.service.impl.exceptions.AlunoNotFoundException;
 import me.dio.academia.academiadigital.entities.Aluno;
 import me.dio.academia.academiadigital.entities.AvaliacaoFisica;
 import me.dio.academia.academiadigital.entities.forms.AvaliacaoFisicaForm;
@@ -8,10 +7,11 @@ import me.dio.academia.academiadigital.entities.forms.AvaliacaoFisicaUpdateForm;
 import me.dio.academia.academiadigital.repositories.AlunoRepository;
 import me.dio.academia.academiadigital.repositories.AvaliacaoFisicaRepository;
 import me.dio.academia.academiadigital.service.IAvaliacaoFisicaService;
+import me.dio.academia.academiadigital.service.impl.exceptions.AvaliacaoFisicaNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -37,6 +37,15 @@ public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
             AvaliacaoFisica avaliacaoFisica = new AvaliacaoFisica();
             Aluno aluno = optionalAluno.get();
 
+            // Validate inputs
+            if (form.getPeso() <= 0 || form.getPeso() > 500) {
+                throw new IllegalArgumentException("O peso informado não é válido.");
+            }
+
+            if (form.getAltura() <= 0.0 || form.getAltura() > 210.0) {
+                throw new IllegalArgumentException("A altura informada não é válida.");
+            }
+
             avaliacaoFisica.setAluno(aluno);
             avaliacaoFisica.setPeso(form.getPeso());
             avaliacaoFisica.setAltura(form.getAltura());
@@ -44,7 +53,7 @@ public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
             return avaliacaoFisicaRepository.save(avaliacaoFisica);
         } else {
             // handle the case where the Aluno is not found
-            throw new AlunoNotFoundException();
+            throw new NoSuchElementException();
         }
     }
 
@@ -60,13 +69,17 @@ public class AvaliacaoFisicaServiceImpl implements IAvaliacaoFisicaService {
         if (avaliacaoFisicaOptional.isPresent()) {
             return avaliacaoFisicaOptional.get();
         } else {
-            throw new EntityNotFoundException("Avaliação Física não encontrada com o id: " + id);
+            throw new AvaliacaoFisicaNotFoundException(id);
         }
     }
 
     @Override
     public AvaliacaoFisica update(Long id, AvaliacaoFisicaUpdateForm formUpdate) {
         AvaliacaoFisica avaliacaoFisica = this.findById(id);
+
+        if (!avaliacaoFisica.getId().equals(id)) {
+            throw new IllegalArgumentException("O id informado não corresponde ao id da Avaliação Física.");
+        }
 
         avaliacaoFisica.setPeso(formUpdate.getPeso());
         avaliacaoFisica.setAltura(formUpdate.getAltura());

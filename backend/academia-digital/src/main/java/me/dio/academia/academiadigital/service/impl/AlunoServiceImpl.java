@@ -9,6 +9,7 @@ import me.dio.academia.academiadigital.repositories.AlunoRepository;
 import me.dio.academia.academiadigital.service.IAlunoService;
 import me.dio.academia.academiadigital.service.impl.exceptions.DatabaseException;
 import me.dio.academia.academiadigital.service.impl.exceptions.ResourceNotFoundException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -38,12 +39,14 @@ public class AlunoServiceImpl implements IAlunoService {
         if (Objects.isNull(dataDeNascimento)) {
             return StreamSupport.stream(alunos.spliterator(), false)
                     .map(AlunoDTO::new)
+                    .onClose(() -> {})
                     .collect(Collectors.toList());
         } else {
             LocalDate localDate = LocalDate.parse(dataDeNascimento, DateTimeFormatter.ISO_LOCAL_DATE);
             return alunoRepository.findByDataDeNascimento(localDate)
                     .stream()
                     .map(AlunoDTO::new)
+                    .onClose(() -> {})
                     .collect(Collectors.toList());
         }
     }
@@ -68,10 +71,10 @@ public class AlunoServiceImpl implements IAlunoService {
                 entity = alunoRepository.save(entity); // atualiza o objeto Aluno no banco de dados
                 return new AlunoDTO(entity);
             } else {
-                throw new ResourceNotFoundException("Id not found " + id);
+                throw new ResourceNotFoundException("Aluno não encontrado com id " + id);
             }
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Id not found " + id);
+        } catch (DataAccessException e) {
+            throw new DatabaseException("Erro ao atualizar o aluno com id " + id);
         }
     }
 
@@ -96,15 +99,11 @@ public class AlunoServiceImpl implements IAlunoService {
     */
     @Override
     public List<AvaliacaoFisica> getAllAvaliacaoFisicaId(Long id) {
-        Optional<Aluno> optionalAluno = alunoRepository.findById(id);
-        if (optionalAluno.isPresent()) {
-            Aluno aluno = optionalAluno.get();
-            return aluno.getAvaliacoesFisicas();
-        } else {
-            // handle the case where the Aluno is not found
-            return Collections.emptyList();
-        }
+        return alunoRepository.findById(id)
+                .orElse(new Aluno())
+                .getAvaliacoesFisicas();
     }
+
 
     @Override
     public List<AlunoDTO> insert(List<AlunoForm> forms) {
