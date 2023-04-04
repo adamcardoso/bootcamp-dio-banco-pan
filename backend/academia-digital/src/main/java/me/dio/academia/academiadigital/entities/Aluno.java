@@ -30,7 +30,7 @@ public class Aluno implements Serializable {
     private String cpf;
     private String bairro;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-    private LocalDate dataNascimento;
+    private LocalDate dataDeNascimento;
 
     @OneToMany(mappedBy = "aluno", fetch = FetchType.LAZY)
     @JsonIgnore
