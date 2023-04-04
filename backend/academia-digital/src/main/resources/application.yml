@@ -1,3 +1,5 @@
+
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/academia?useTimezone=true&serverTimezone=UTC&useLegacyDate
@@ -11,3 +13,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        type: trace
+server:
+  port: 8081
