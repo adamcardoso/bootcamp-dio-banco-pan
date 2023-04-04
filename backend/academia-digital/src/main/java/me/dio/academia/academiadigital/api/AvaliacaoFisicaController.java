@@ -1,4 +1,4 @@
-package me.dio.academia.academiadigital.controller;
+package me.dio.academia.academiadigital.api;
 
 import me.dio.academia.academiadigital.entities.AvaliacaoFisica;
 import me.dio.academia.academiadigital.entities.forms.AvaliacaoFisicaForm;

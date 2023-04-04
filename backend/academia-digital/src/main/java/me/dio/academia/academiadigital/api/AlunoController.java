@@ -1,5 +1,13 @@
-package me.dio.academia.academiadigital.controller;
+package me.dio.academia.academiadigital.api;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import me.dio.academia.academiadigital.dto.AlunoDTO;
 import me.dio.academia.academiadigital.entities.AvaliacaoFisica;
 import me.dio.academia.academiadigital.entities.forms.AlunoForm;
@@ -18,6 +26,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/alunos")
+@OpenAPIDefinition
+@Tag(name = "/alunos", description = "Grupo de API's para manipulação de dados de alunos")
 public class AlunoController {
 
     private final AlunoServiceImpl alunoService;
@@ -34,6 +44,13 @@ public class AlunoController {
         return ResponseEntity.ok(alunos);
     }
 
+    @Operation(description = "API para buscar alunos por id")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Retorno OK da Lista de alunos"),
+            @ApiResponse(responseCode = "401", description = "Erro de autenticação dessa API"),
+            @ApiResponse(responseCode = "403", description = "Erro de autorização dessa API"),
+            @ApiResponse(responseCode = "404", description = "Recurso não encontrado")})
+    @Parameters(value = {@Parameter(name = "id", in = ParameterIn.PATH)})
+    @ResponseBody
     @GetMapping("/{id}")
     public ResponseEntity<AlunoDTO> findById(@PathVariable("id") Long id) {
         Optional<AlunoDTO> aluno = alunoService.findById(id);
@@ -44,6 +61,13 @@ public class AlunoController {
         }
     }
 
+    @Operation(description = "API para inserir dados de um aluno no banco")
+    @ResponseBody
+    @ApiResponses(value = {@ApiResponse(responseCode = "201", description = "Retorno OK com a transação criada."),
+            @ApiResponse(responseCode = "401", description = "Erro de autenticação dessa API"),
+            @ApiResponse(responseCode = "403", description = "Erro de autorização dessa API"),
+            @ApiResponse(responseCode = "404", description = "Recurso não encontrado")
+    })
     @PostMapping
     public ResponseEntity<AlunoDTO> insert(@Valid @RequestBody AlunoDTO alunoDTO) {
         AlunoForm alunoForm = alunoDTO.toForm(); // convert AlunoDTO to AlunoForm
